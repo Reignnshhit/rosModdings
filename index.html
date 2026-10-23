@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aim Trainer - Lesson 1</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 20px;
+    background: #10151d;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+  h1 { color: #65efbd; }
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin: 16px;
+  }
+  #arena {
+    position: relative;
+    width: 100%;
+    max-width: 700px;
+    height: 420px;
+    margin: 20px auto;
+    overflow: hidden;
+    background-color: #1b2935;
+    border: 2px solid #405365;
+    border-radius: 12px;
+    touch-action: manipulation;
+  }
+  #target {
+    position: absolute;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #ff5353;
+    border: 4px solid #ffc4c4;
+    box-shadow: 0 0 16px #ff535388;
+    cursor: crosshair;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+  #crosshair {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    width: 24px;
+    height: 24px;
+    border: 2px solid #65efbd;
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    display: none;
+  }
+  button {
+    padding: 12px 18px;
+    margin: 5px;
+    border: 0;
+    border-radius: 8px;
+    background: #65efbd;
+    color: #10151d;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  #message { color: #b6c5d4; }
+</style>
+</head>
+<body>
+<h1>Aim Trainer</h1>
+<p>Practice your aim on your own target.</p>
+
+<div class="stats">
+  <div>Score: <strong id="score">0</strong></div>
+  <div>Time: <strong id="time">30</strong>s</div>
+  <div>Hits: <strong id="hits">0</strong></div>
+</div>
+
+<div id="arena">
+  <button id="target" aria-label="Target"></button>
+</div>
+
+<button id="start">Start Training</button>
+<p id="message">Press Start, then hit the red target!</p>
+
+<script>
+const arena = document.getElementById("arena");
+const target = document.getElementById("target");
+const scoreEl = document.getElementById("score");
+const timeEl = document.getElementById("time");
+const hitsEl = document.getElementById("hits");
+const message = document.getElementById("message");
+const start = document.getElementById("start");
+
+let score = 0;
+let hits = 0;
+let timeLeft = 30;
+let playing = false;
+let timer;
+
+function moveTarget() {
+  const maxX = arena.clientWidth - target.offsetWidth;
+  const maxY = arena.clientHeight - target.offsetHeight;
+  target.style.left = Math.random() * maxX + "px";
+  target.style.top = Math.random() * maxY + "px";
+  target.style.transform = "none";
+}
+
+function endGame() {
+  playing = false;
+  clearInterval(timer);
+  target.hidden = true;
+  start.disabled = false;
+  message.textContent =
+    `Training finished! Score: ${score}, Hits: ${hits}`;
+}
+
+start.addEventListener("click", () => {
+  clearInterval(timer);
+  score = 0;
+  hits = 0;
+  timeLeft = 30;
+  playing = true;
+  target.hidden = false;
+  start.disabled = true;
+  scoreEl.textContent = score;
+  hitsEl.textContent = hits;
+  timeEl.textContent = timeLeft;
+  message.textContent = "Go! Hit as many targets as you can.";
+  moveTarget();
+
+  timer = setInterval(() => {
+    timeLeft--;
+    timeEl.textContent = timeLeft;
+    if (timeLeft <= 0) endGame();
+  }, 1000);
+});
+
+target.addEventListener("click", (event) => {
+  event.stopPropagation();
+  if (!playing) return;
+  score += 10;
+  hits++;
+  scoreEl.textContent = score;
+  hitsEl.textContent = hits;
+  moveTarget();
+});
+
+target.hidden = true;
+</script>
+</body>
+</html>
